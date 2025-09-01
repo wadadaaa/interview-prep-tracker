@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interview Prep Tracker</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .fade-in {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        // Simple icon components
+        const CheckIcon = () => (
+            <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+            </svg>
+        );
+
+        const BookIcon = () => (
+            <svg className="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C20.832 18.477 19.246 18 17.5 18c-1.746 0-3.332.477-4.5 1.253" />
+            </svg>
+        );
+
+        const CodeIcon = () => (
+            <svg className="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+            </svg>
+        );
+
+        const TargetIcon = () => (
+            <svg className="w-4 h-4 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+            </svg>
+        );
+
+        const CalendarIcon = () => (
+            <svg className="w-4 h-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+        );
+
+        const ClockIcon = () => (
+            <svg className="w-4 h-4 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+        );
+
+        const SettingsIcon = () => (
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+        );
+
+        const InterviewPrepTracker = () => {
+          // Load settings from localStorage
+          const [settings, setSettings] = useState(() => {
+            const saved = localStorage.getItem('interviewSettings');
+            return saved ? JSON.parse(saved) : {
+              company: 'Your Dream Company',
+              position: 'Software Engineer',
+              targetDate: '',
+              interviewType: 'fullstack'
+            };
+          });
+
+          const [showSettings, setShowSettings] = useState(false);
+          
+          // Load progress from localStorage
+          const [completedTasks, setCompletedTasks] = useState(() => {
+            const saved = localStorage.getItem('completedTasks');
+            return saved ? new Set(JSON.parse(saved)) : new Set();
+          });
+          
+          const [currentWeek, setCurrentWeek] = useState(() => {
+            const saved = localStorage.getItem('currentWeek');
+            return saved ? parseInt(saved) : 1;
+          });
+          
+          const [notes, setNotes] = useState(() => {
+            const saved = localStorage.getItem('notes');
+            return saved || '';
+          });
+
+          // Save data to localStorage
+          useEffect(() => {
+            localStorage.setItem('interviewSettings', JSON.stringify(settings));
+          }, [settings]);
+
+          useEffect(() => {
+            localStorage.setItem('completedTasks', JSON.stringify(Array.from(completedTasks)));
+          }, [completedTasks]);
+
+          useEffect(() => {
+            localStorage.setItem('currentWeek', currentWeek.toString());
+          }, [currentWeek]);
+
+          useEffect(() => {
+            localStorage.setItem('notes', notes);
+          }, [notes]);
+
+          // Learning plans for different interview types
+          const learningPlans = {
+            fullstack: [
+              {
+                week: 1,
+                title: "Frontend Fundamentals",
+                color: "bg-blue-500",
+                tasks: [
+                  { id: 'react-basics', title: 'Master React fundamentals', hours: 8, type: 'course' },
+                  { id: 'javascript-advanced', title: 'Advanced JavaScript concepts', hours: 6, type: 'course' },
+                  { id: 'css-layout', title: 'Modern CSS & layouts', hours: 4, type: 'practice' },
+                  { id: 'frontend-project', title: 'Build responsive web app', hours: 6, type: 'project' }
+                ]
+              },
+              {
+                week: 2,
+                title: "Backend Development",
+                color: "bg-green-500",
+                tasks: [
+                  { id: 'nodejs-api', title: 'Node.js & API development', hours: 8, type: 'course' },
+                  { id: 'database-design', title: 'Database design & queries', hours: 6, type: 'course' },
+                  { id: 'auth-security', title: 'Authentication & security', hours: 4, type: 'study' },
+                  { id: 'api-project', title: 'Build REST API with database', hours: 6, type: 'project' }
+                ]
+              },
+              {
+                week: 3,
+                title: "System Design & Architecture",
+                color: "bg-purple-500",
+                tasks: [
+                  { id: 'system-design', title: 'System design fundamentals', hours: 8, type: 'study' },
+                  { id: 'scalability', title: 'Scalability patterns', hours: 6, type: 'study' },
+                  { id: 'microservices', title: 'Microservices architecture', hours: 4, type: 'study' },
+                  { id: 'design-practice', title: 'Practice system design problems', hours: 6, type: 'practice' }
+                ]
+              },
+              {
+                week: 4,
+                title: "Coding & Algorithms",
+                color: "bg-red-500",
+                tasks: [
+                  { id: 'data-structures', title: 'Data structures review', hours: 6, type: 'study' },
+                  { id: 'algorithms', title: 'Algorithm practice', hours: 8, type: 'practice' },
+                  { id: 'leetcode', title: 'Solve coding problems', hours: 6, type: 'practice' },
+                  { id: 'mock-coding', title: 'Mock coding interviews', hours: 4, type: 'prep' }
+                ]
+              },
+              {
+                week: 5,
+                title: "Interview Preparation",
+                color: "bg-yellow-500",
+                tasks: [
+                  { id: 'behavioral-prep', title: 'Prepare behavioral answers', hours: 4, type: 'prep' },
+                  { id: 'portfolio-ready', title: 'Finalize portfolio projects', hours: 6, type: 'project' },
+                  { id: 'company-research', title: 'Research company & role', hours: 3, type: 'study' },
+                  { id: 'mock-interviews', title: 'Complete mock interviews', hours: 3, type: 'prep' }
+                ]
+              }
+            ],
+            frontend: [
+              {
+                week: 1,
+                title: "Modern JavaScript & React",
+                color: "bg-blue-500",
+                tasks: [
+                  { id: 'js-es6', title: 'ES6+ features mastery', hours: 6, type: 'course' },
+                  { id: 'react-advanced', title: 'Advanced React patterns', hours: 8, type: 'course' },
+                  { id: 'typescript', title: 'TypeScript fundamentals', hours: 6, type: 'course' },
+                  { id: 'react-project', title: 'Complex React application', hours: 8, type: 'project' }
+                ]
+              },
+              {
+                week: 2,
+                title: "State Management & Testing",
+                color: "bg-green-500",
+                tasks: [
+                  { id: 'state-management', title: 'Redux/Context patterns', hours: 6, type: 'course' },
+                  { id: 'testing-react', title: 'React Testing Library', hours: 6, type: 'course' },
+                  { id: 'performance', title: 'Performance optimization', hours: 4, type: 'study' },
+                  { id: 'testing-project', title: 'Add tests to project', hours: 6, type: 'project' }
+                ]
+              }
+            ],
+            backend: [
+              {
+                week: 1,
+                title: "Server & API Development",
+                color: "bg-green-500",
+                tasks: [
+                  { id: 'server-frameworks', title: 'Master server frameworks', hours: 8, type: 'course' },
+                  { id: 'database-deep', title: 'Database design & optimization', hours: 8, type: 'course' },
+                  { id: 'api-design', title: 'RESTful API design', hours: 6, type: 'study' },
+                  { id: 'backend-project', title: 'Scalable backend service', hours: 8, type: 'project' }
+                ]
+              }
+            ]
+          };
+
+          const currentPlan = learningPlans[settings.interviewType] || learningPlans.fullstack;
+
+          const toggleTask = (taskId) => {
+            const newCompleted = new Set(completedTasks);
+            if (newCompleted.has(taskId)) {
+              newCompleted.delete(taskId);
+            } else {
+              newCompleted.add(taskId);
+            }
+            setCompletedTasks(newCompleted);
+          };
+
+          const getOverallProgress = () => {
+            const allTasks = currentPlan.flatMap(week => week.tasks.map(task => task.id));
+            const completed = allTasks.filter(id => completedTasks.has(id)).length;
+            return Math.round((completed / allTasks.length) * 100);
+          };
+
+          const getCurrentWeekProgress = () => {
+            const currentWeekTasks = currentPlan.find(w => w.week === currentWeek)?.tasks || [];
+            const completed = currentWeekTasks.filter(task => completedTasks.has(task.id)).length;
+            return Math.round((completed / currentWeekTasks.length) * 100);
+          };
+
+          const getTotalHours = () => {
+            return currentPlan.reduce((total, week) => 
+              total + week.tasks.reduce((weekTotal, task) => weekTotal + task.hours, 0), 0
+            );
+          };
+
+          const getCompletedHours = () => {
+            return currentPlan.reduce((total, week) => 
+              total + week.tasks.reduce((weekTotal, task) => 
+                weekTotal + (completedTasks.has(task.id) ? task.hours : 0), 0
+              ), 0
+            );
+          };
+
+          const getTaskIcon = (type) => {
+            switch(type) {
+              case 'course': return <BookIcon />;
+              case 'practice': return <CodeIcon />;
+              case 'study': return <TargetIcon />;
+              case 'project': return <CalendarIcon />;
+              case 'prep': return <ClockIcon />;
+              default: return <ClockIcon />;
+            }
+          };
+
+          const getDaysUntilInterview = () => {
+            if (!settings.targetDate) return null;
+            const target = new Date(settings.targetDate);
+            const today = new Date();
+            const diffTime = target - today;
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            return diffDays > 0 ? diffDays : 0;
+          };
+
+          const overallProgress = getOverallProgress();
+          const currentWeekProgress = getCurrentWeekProgress();
+          const completedHours = getCompletedHours();
+          const totalHours = getTotalHours();
+          const daysUntilInterview = getDaysUntilInterview();
+
+          const SettingsModal = () => (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 fade-in">
+              <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4">
+                <h3 className="text-lg font-semibold mb-4">⚙️ Settings</h3>
+                
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Company Name
+                    </label>
+                    <input
+                      type="text"
+                      value={settings.company}
+                      onChange={(e) => setSettings({...settings, company: e.target.value})}
+                      className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="e.g., Google, Microsoft, Elastic"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Position
+                    </label>
+                    <input
+                      type="text"
+                      value={settings.position}
+                      onChange={(e) => setSettings({...settings, position: e.target.value})}
+                      className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="e.g., Senior Software Engineer"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Interview Type
+                    </label>
+                    <select
+                      value={settings.interviewType}
+                      onChange={(e) => setSettings({...settings, interviewType: e.target.value})}
+                      className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    >
+                      <option value="fullstack">Full-Stack Engineer</option>
+                      <option value="frontend">Frontend Engineer</option>
+                      <option value="backend">Backend Engineer</option>
+                    </select>
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Target Interview Date
+                    </label>
+                    <input
+                      type="date"
+                      value={settings.targetDate}
+                      onChange={(e) => setSettings({...settings, targetDate: e.target.value})}
+                      className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                  </div>
+                </div>
+                
+                <div className="flex justify-end space-x-3 mt-6">
+                  <button
+                    onClick={() => setShowSettings(false)}
+                    className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={() => setShowSettings(false)}
+                    className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
+                  >
+                    Save
+                  </button>
+                </div>
+              </div>
+            </div>
+          );
+
+          return (
+            <div className="max-w-4xl mx-auto p-6 bg-gray-50 min-h-screen">
+              {/* Header */}
+              <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-6 rounded-lg mb-6 shadow-lg">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <h1 className="text-2xl font-bold mb-2">🎯 Interview Prep Tracker</h1>
+                    <p className="opacity-90">{settings.position} at {settings.company}</p>
+                  </div>
+                  <button
+                    onClick={() => setShowSettings(true)}
+                    className="p-2 bg-white bg-opacity-20 rounded-lg hover:bg-opacity-30 transition-all"
+                  >
+                    <SettingsIcon />
+                  </button>
+                </div>
+              </div>
+
+              {/* Progress Overview */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <div className="bg-white rounded-lg shadow-md p-4 hover:shadow-lg transition-shadow">
+                  <h3 className="text-sm font-medium text-gray-600 mb-2">Overall Progress</h3>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-2xl font-bold text-blue-600">{overallProgress}%</span>
+                    <span className="text-sm text-gray-500">{completedHours}/{totalHours}h</span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div 
+                      className="bg-blue-600 h-2 rounded-full transition-all duration-500"
+                      style={{ width: `${overallProgress}%` }}
+                    ></div>
+                  </div>
+                </div>
+
+                <div className="bg-white rounded-lg shadow-md p-4 hover:shadow-lg transition-shadow">
+                  <h3 className="text-sm font-medium text-gray-600 mb-2">Current Week</h3>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-2xl font-bold text-green-600">{currentWeekProgress}%</span>
+                    <span className="text-sm text-gray-500">Week {currentWeek}</span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div 
+                      className="bg-green-600 h-2 rounded-full transition-all duration-500"
+                      style={{ width: `${currentWeekProgress}%` }}
+                    ></div>
+                  </div>
+                </div>
+
+                <div className="bg-white rounded-lg shadow-md p-4 hover:shadow-lg transition-shadow">
+                  <h3 className="text-sm font-medium text-gray-600 mb-2">Time Remaining</h3>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-2xl font-bold text-purple-600">
+                      {daysUntilInterview !== null ? daysUntilInterview : '~35'}
+                    </span>
+                    <span className="text-sm text-gray-500">days</span>
+                  </div>
+                  <div className="text-xs text-gray-500">
+                    {daysUntilInterview !== null ? 'Until interview' : 'Set target date'}
+                  </div>
+                </div>
+              </div>
+
+              {/* Week Selector */}
+              <div className="bg-white rounded-lg shadow-md p-4 mb-6">
+                <h2 className="text-lg font-semibold mb-4">📅 Study Plan</h2>
+                <div className="flex flex-wrap gap-2">
+                  {currentPlan.map((week) => (
+                    <button
+                      key={week.week}
+                      onClick={() => setCurrentWeek(week.week)}
+                      className={`px-4 py-2 rounded-lg text-sm font-medium transition-all transform hover:scale-105 ${
+                        currentWeek === week.week 
+                          ? `${week.color} text-white shadow-md` 
+                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      }`}
+                    >
+                      Week {week.week}: {week.title}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Current Week Tasks */}
+              <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-lg font-semibold">
+                    Week {currentWeek}: {currentPlan.find(w => w.week === currentWeek)?.title}
+                  </h2>
+                  <div className="text-sm text-gray-500">
+                    Progress: {currentWeekProgress}%
+                  </div>
+                </div>
+                
+                <div className="space-y-3">
+                  {currentPlan.find(w => w.week === currentWeek)?.tasks.map((task) => {
+                    const isCompleted = completedTasks.has(task.id);
+                    return (
+                      <div
+                        key={task.id}
+                        className={`flex items-center p-3 rounded-lg border cursor-pointer transition-all transform hover:scale-[1.02] ${
+                          isCompleted 
+                            ? 'bg-green-50 border-green-200 shadow-sm' 
+                            : 'bg-gray-50 border-gray-200 hover:border-gray-300 hover:shadow-sm'
+                        }`}
+                        onClick={() => toggleTask(task.id)}
+                      >
+                        <div className="flex-shrink-0 mr-3">
+                          {isCompleted ? (
+                            <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
+                              <CheckIcon />
+                            </div>
+                          ) : (
+                            <div className="w-6 h-6 border-2 border-gray-300 rounded-full hover:border-gray-400 transition-colors"></div>
+                          )}
+                        </div>
+                        
+                        <div className="flex-grow">
+                          <div className="flex items-center space-x-2">
+                            {getTaskIcon(task.type)}
+                            <span className={`font-medium ${isCompleted ? 'line-through text-gray-500' : 'text-gray-900'}`}>
+                              {task.title}
+                            </span>
+                          </div>
+                          <div className="text-sm text-gray-500 mt-1">
+                            {task.hours} hours • {task.type === 'course' ? 'Course' : 
+                             task.type === 'practice' ? 'Practice' : 
+                             task.type === 'study' ? 'Study' : 
+                             task.type === 'project' ? 'Project' : 'Interview Prep'}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Notes Section */}
+              <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+                <h2 className="text-lg font-semibold mb-4">📝 Notes & Progress</h2>
+                <textarea
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
+                  placeholder="Track your daily progress, questions, and insights here..."
+                  className="w-full h-32 p-3 border border-gray-300 rounded-lg resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                />
+                <div className="mt-2 text-sm text-gray-500">
+                  Example: "Completed React course today. Need more practice with hooks."
+                </div>
+              </div>
+
+              {/* Tips */}
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <h3 className="font-semibold text-blue-800 mb-2">💡 Interview Prep Tips:</h3>
+                <ul className="text-sm text-blue-700 space-y-1">
+                  <li>• Focus on understanding concepts, not just memorizing</li>
+                  <li>• Build projects that demonstrate your skills</li>
+                  <li>• Practice explaining your code out loud</li>
+                  <li>• Research the company culture and values</li>
+                  <li>• Prepare thoughtful questions for your interviewers</li>
+                </ul>
+              </div>
+
+              {showSettings && <SettingsModal />}
+            </div>
+          );
+        };
+
+        // Use createRoot for React 18
+        const container = document.getElementById('root');
+        const root = ReactDOM.createRoot(container);
+        root.render(<InterviewPrepTracker />);
+    </script>
+</body>
+</html>
